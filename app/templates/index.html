@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 가계부 에이전트</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel input-panel">
+        <h1>AI 가계부 에이전트</h1>
+        <form id="analyze-form">
+          <textarea id="expense-text" rows="4" placeholder="오늘 친구랑 밥을 먹어서 총 3만원이 나왔는데 내가 결제했어."></textarea>
+          <button type="submit">분석하기</button>
+        </form>
+        <div id="question" class="notice hidden"></div>
+      </section>
+
+      <section id="preview-panel" class="panel hidden">
+        <h2>분석 결과</h2>
+        <dl id="preview"></dl>
+        <button id="save-button" type="button">저장하기</button>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>지출 목록</h2>
+          <div class="filters">
+            <input id="month-input" type="month" />
+            <button id="load-button" type="button">조회</button>
+          </div>
+          <ul id="expense-list" class="list"></ul>
+        </div>
+
+        <div class="panel">
+          <h2>월간 요약</h2>
+          <div id="summary"></div>
+        </div>
+
+        <div class="panel">
+          <h2>받을 돈</h2>
+          <div class="filters">
+            <input id="person-input" type="text" placeholder="사람 이름" />
+            <button id="person-button" type="button">조회</button>
+          </div>
+          <div id="receivables"></div>
+        </div>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
