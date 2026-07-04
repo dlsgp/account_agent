@@ -11,13 +11,22 @@ class ExpenseParseRequest:
 
 
 @dataclass(frozen=True)
-class ExpenseParseResult:
+class ExpenseParseEvent:
     date: date | None
-    payment_amount: int | None
+    title: str | None
+    total_amount: int | None
+    payer: str | None
     people_count: int | None
-    paid_by_me: bool | None
     participants: list[str] = field(default_factory=list)
+    settlement_type: str | None = None
     memo: str = ""
+    missing_fields: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ExpenseParseResult:
+    clarification_required: bool
+    events: list[ExpenseParseEvent] = field(default_factory=list)
     missing_fields: list[str] = field(default_factory=list)
 
 
@@ -26,6 +35,7 @@ class SettlementRequest:
     payment_amount: int
     people_count: int
     paid_by_me: bool
+    settlement_type: str = "split"
 
 
 @dataclass(frozen=True)

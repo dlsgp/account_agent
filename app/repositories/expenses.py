@@ -9,7 +9,7 @@ from app.models import ExpenseRecord, Receivable
 from app.schemas.expense import ExpenseCreateRequest
 
 
-def create_expense(db: Session, data: ExpenseCreateRequest) -> ExpenseRecord:
+def create_expense_event(db: Session, data) -> ExpenseRecord:
     expense = ExpenseRecord(
         date=data.date,
         title=data.title,
@@ -25,6 +25,8 @@ def create_expense(db: Session, data: ExpenseCreateRequest) -> ExpenseRecord:
         raw_input=data.raw_input,
     )
     for participant in data.participants:
+        if participant.name == "me" or participant.receivable_amount <= 0:
+            continue
         expense.receivables.append(
             Receivable(
                 person_name=participant.name,
@@ -33,9 +35,15 @@ def create_expense(db: Session, data: ExpenseCreateRequest) -> ExpenseRecord:
             )
         )
     db.add(expense)
-    db.commit()
-    db.refresh(expense)
     return expense
+
+
+def create_expenses(db: Session, data: ExpenseCreateRequest) -> list[ExpenseRecord]:
+    expenses = [create_expense_event(db, event) for event in data.events]
+    db.commit()
+    for expense in expenses:
+        db.refresh(expense)
+    return expenses
 
 
 def list_expenses(db: Session, month: str | None = None, category: str | None = None) -> list[ExpenseRecord]:

@@ -15,6 +15,14 @@ class SettlementCalculatorSkill(Skill[SettlementRequest, SettlementResult]):
         if data.people_count <= 0:
             raise ValueError("people_count must be greater than 0")
 
+        if data.settlement_type == "treated":
+            return SettlementResult(
+                payment_amount=0,
+                my_share=0,
+                receivable_amount=0,
+                payable_amount=0,
+            )
+
         my_share = data.payment_amount // data.people_count
 
         if data.paid_by_me:

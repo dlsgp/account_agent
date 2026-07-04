@@ -1,4 +1,4 @@
-let currentPreview = null;
+let currentEvents = [];
 
 const form = document.querySelector("#analyze-form");
 const textarea = document.querySelector("#expense-text");
@@ -20,21 +20,29 @@ function currentMonth() {
   return new Date().toISOString().slice(0, 7);
 }
 
-function renderPreview(data) {
-  const rows = {
-    날짜: data.date,
-    제목: data.title,
-    카테고리: data.category,
-    "총 결제금액": `${money.format(data.payment_amount)}원`,
-    "내 부담액": `${money.format(data.my_share)}원`,
-    "받을 돈": `${money.format(data.receivable_amount)}원`,
-    "줄 돈": `${money.format(data.payable_amount)}원`,
-    "인원 수": data.people_count || "-",
-    참여자: data.participants.map((item) => `${item.name} ${money.format(item.receivable_amount)}원`).join(", ") || "-",
-    메모: data.memo || "-",
-  };
-  preview.innerHTML = Object.entries(rows)
-    .map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`)
+function renderPreview(events) {
+  preview.innerHTML = events
+    .map((data, index) => {
+      const rows = {
+        이벤트: `${index + 1}`,
+        날짜: data.date,
+        제목: data.title,
+        카테고리: data.category,
+        "총 금액": `${money.format(data.total_amount)}원`,
+        결제자: data.payer === "me" ? "나" : data.payer,
+        "내 실제 결제": `${money.format(data.payment_amount)}원`,
+        "내 부담액": `${money.format(data.my_share)}원`,
+        "받을 돈": `${money.format(data.receivable_amount)}원`,
+        "줄 돈": `${money.format(data.payable_amount)}원`,
+        정산: data.settlement_type,
+        "인원 수": data.people_count || "-",
+        참여자: data.participants.map((item) => item.name).join(", ") || "-",
+        메모: data.memo || "-",
+      };
+      return `<div class="event-preview">${Object.entries(rows)
+        .map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`)
+        .join("")}</div>`;
+    })
     .join("");
   previewPanel.classList.remove("hidden");
 }
@@ -43,7 +51,7 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   question.classList.add("hidden");
   previewPanel.classList.add("hidden");
-  currentPreview = null;
+  currentEvents = [];
 
   const response = await fetch("/api/expenses/analyze", {
     method: "POST",
@@ -58,19 +66,19 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  currentPreview = result.preview;
-  renderPreview(currentPreview);
+  currentEvents = result.events;
+  renderPreview(currentEvents);
 });
 
 saveButton.addEventListener("click", async () => {
-  if (!currentPreview) return;
+  if (!currentEvents.length) return;
   const response = await fetch("/api/expenses", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(currentPreview),
+    body: JSON.stringify({ events: currentEvents }),
   });
   if (response.ok) {
-    currentPreview = null;
+    currentEvents = [];
     previewPanel.classList.add("hidden");
     textarea.value = "";
     await loadDashboard();

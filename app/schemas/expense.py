@@ -18,12 +18,15 @@ class ExpensePreview(BaseModel):
     date: date
     title: str
     category: str
-    payment_amount: int = Field(gt=0)
+    total_amount: int = Field(ge=0)
+    payer: str
+    payment_amount: int = Field(ge=0)
     my_share: int = Field(ge=0)
     people_count: int | None = Field(default=None, ge=1)
     paid_by_me: bool
     receivable_amount: int = Field(ge=0)
     payable_amount: int = Field(ge=0)
+    settlement_type: str = "split"
     type: str = "expense"
     memo: str | None = None
     raw_input: str
@@ -32,17 +35,18 @@ class ExpensePreview(BaseModel):
 
 class ExpenseAnalyzeResponse(BaseModel):
     status: str
-    preview: ExpensePreview | None = None
+    clarification_required: bool = False
+    events: list[ExpensePreview] = Field(default_factory=list)
     missing_fields: list[str] = Field(default_factory=list)
     question: str | None = None
 
 
-class ExpenseCreateRequest(ExpensePreview):
-    pass
+class ExpenseCreateRequest(BaseModel):
+    events: list[ExpensePreview] = Field(min_length=1)
 
 
 class ExpenseCreateResponse(BaseModel):
-    id: int
+    ids: list[int]
     saved: bool
 
 

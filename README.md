@@ -30,12 +30,13 @@ OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4.1-mini
 ```
 
-`OPENAI_API_KEY`가 없으면 개발용 규칙 기반 skill 파서로 동작합니다.
+`OPENAI_API_KEY`가 없으면 개발용 규칙 기반 skill 파서로 동작합니다. `DATABASE_URL`에는 Supabase PostgreSQL 연결 문자열을 넣어야 저장/조회와 마이그레이션이 동작합니다.
 
 ## 로컬 실행
 
 ```bash
 python -m pip install -r requirements.txt
+python scripts/check_db.py
 python -m alembic upgrade head
 python -m uvicorn app.main:app --reload
 ```

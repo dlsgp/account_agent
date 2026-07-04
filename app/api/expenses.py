@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.repositories.expenses import create_expense, list_expenses
+from app.repositories.expenses import create_expenses, list_expenses
 from app.schemas.expense import (
     ExpenseAnalyzeRequest,
     ExpenseAnalyzeResponse,
@@ -25,8 +25,8 @@ def analyze_expense(payload: ExpenseAnalyzeRequest) -> ExpenseAnalyzeResponse:
 
 @router.post("", response_model=ExpenseCreateResponse)
 def save_expense(payload: ExpenseCreateRequest, db: Session = Depends(get_db)) -> ExpenseCreateResponse:
-    expense = create_expense(db, payload)
-    return ExpenseCreateResponse(id=expense.id, saved=True)
+    expenses = create_expenses(db, payload)
+    return ExpenseCreateResponse(ids=[expense.id for expense in expenses], saved=True)
 
 
 @router.get("", response_model=ExpenseListResponse)
